@@ -33,6 +33,7 @@ parser = LoRaArgumentParser("Continous LoRa receiver.")
 
 
 class LoRaRcvCont(LoRa):
+    tx_counter = 0
     def __init__(self, verbose=False):
         super(LoRaRcvCont, self).__init__(verbose)
         self.set_mode(MODE.SLEEP)
@@ -43,7 +44,19 @@ class LoRaRcvCont(LoRa):
         print("\nRxDone")
         self.clear_irq_flags(RxDone=1)
         payload = self.read_payload(nocheck=True)
-        print(bytes(payload).decode("ASCII",'ignore'))
+        print("bytesmessage:")
+        print(bytes(payload).decode("utf-8", 'ignore'))
+        print(payload)
+        message=[]
+        for i in payload[4:13]:
+            message.append(chr(i))
+        print message
+        temp=message[0]+message[1]
+        print temp
+
+        # print(int.from_bytes(payload, byteorder='little'))
+        # print(chr(int.from_bytes(b'\xf3\x25', byteorder='little')))
+        # .decode("utf-8", 'ignore')
         self.set_mode(MODE.SLEEP)
         self.reset_ptr_rx()
         BOARD.led_off()
@@ -52,6 +65,20 @@ class LoRaRcvCont(LoRa):
     def on_tx_done(self):
         print("\nTxDone")
         print(self.get_irq_flags())
+        # global args
+        # self.set_mode(MODE.STDBY)
+        # self.clear_irq_flags(TxDone=1)
+        # sys.stdout.flush()
+        # self.tx_counter += 1
+        # sys.stdout.write("\rtx #%d" % self.tx_counter)
+        # if args.single:
+        #     print
+        #     sys.exit(0)
+        # BOARD.led_off()
+        # sleep(args.wait)
+        # self.write_payload([0x0f])
+        # BOARD.led_on()
+        # self.set_mode(MODE.TX)
 
     def on_cad_done(self):
         print("\non_CadDone")
@@ -84,12 +111,12 @@ class LoRaRcvCont(LoRa):
             sys.stdout.write("\r%d %d %d" % (rssi_value, status['rx_ongoing'], status['modem_clear']))
 
 
-lora = LoRaRcvCont(verbose=False)
-args = parser.parse_args(lora)
+lorarx = LoRaRcvCont(verbose=False)
+args = parser.parse_args(lorarx)
 
-lora.set_mode(MODE.STDBY)
-lora.set_pa_config(pa_select=1)
-lora.set_freq(433.5)
+lorarx.set_mode(MODE.STDBY)
+lorarx.set_pa_config(pa_select=1)
+lorarx.set_freq(433.5)
 #lora.set_rx_crc(True)
 #lora.set_coding_rate(CODING_RATE.CR4_6)
 #lora.set_pa_config(max_power=0, output_power=0)
@@ -99,14 +126,14 @@ lora.set_freq(433.5)
 #lora.set_pa_ramp(PA_RAMP.RAMP_50_us)
 #lora.set_agc_auto_on(True)
 
-print(lora)
-assert(lora.get_agc_auto_on() == 1)
+print(lorarx)
+assert(lorarx.get_agc_auto_on() == 1)
 
 try: input("Press enter to start...")
 except: pass
 
 try:
-    lora.start()
+    lorarx.start()
 except KeyboardInterrupt:
     sys.stdout.flush()
     print("")
@@ -114,6 +141,7 @@ except KeyboardInterrupt:
 finally:
     sys.stdout.flush()
     print("")
-    lora.set_mode(MODE.SLEEP)
-    print(lora)
+    lorarx.set_mode(MODE.SLEEP)
+    print("lora")
+    print(lorarx)
     BOARD.teardown()

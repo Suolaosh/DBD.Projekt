@@ -38,7 +38,8 @@ parser.add_argument('--wait', '-w', dest='wait', default=1, action="store", type
 class LoRaBeacon(LoRa):
 
     tx_counter = 0
-
+    sbcommend = 0x30
+    bjcommend = 0x31
     def __init__(self, verbose=False):
         super(LoRaBeacon, self).__init__(verbose)
         self.set_mode(MODE.SLEEP)
@@ -64,7 +65,8 @@ class LoRaBeacon(LoRa):
             sys.exit(0)
         BOARD.led_off()
         sleep(args.wait)
-        self.write_payload([0x0f])
+
+        self.write_payload([0xfe,0xbb,self.tx_counter,0x39,self.sbcommend,self.bjcommend])
         BOARD.led_on()
         self.set_mode(MODE.TX)
 
@@ -100,7 +102,7 @@ class LoRaBeacon(LoRa):
 
 lora = LoRaBeacon(verbose=False)
 args = parser.parse_args(lora)
-
+lora.set_freq(433.5)
 lora.set_pa_config(pa_select=1)
 #lora.set_rx_crc(True)
 #lora.set_agc_auto_on(True)
