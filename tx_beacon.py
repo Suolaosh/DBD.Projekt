@@ -38,12 +38,14 @@ parser.add_argument('--wait', '-w', dest='wait', default=1, action="store", type
 class LoRaBeacon(LoRa):
 
     tx_counter = 0
-    sbcommend = 0x30
-    bjcommend = 0x31
+    sbcommend = 0
+    bjcommend = 1
+
     def __init__(self, verbose=False):
         super(LoRaBeacon, self).__init__(verbose)
         self.set_mode(MODE.SLEEP)
         self.set_dio_mapping([1,0,0,0,0,0])
+        self.set_freq(433.5)
 
     def on_rx_done(self):
         print("\nRxDone")
@@ -58,50 +60,37 @@ class LoRaBeacon(LoRa):
         self.set_mode(MODE.STDBY)
         self.clear_irq_flags(TxDone=1)
         sys.stdout.flush()
+        # if(查询值发生变化 或者 )
         self.tx_counter += 1
         sys.stdout.write("\rtx #%d" % self.tx_counter)
+
         if args.single:
             print
             sys.exit(0)
-        BOARD.led_off()
+        # BOARD.led_off()
         sleep(args.wait)
 
         self.write_payload([0xfe,0xbb,self.tx_counter,0x39,self.sbcommend,self.bjcommend])
-        BOARD.led_on()
+        # BOARD.led_on()
         self.set_mode(MODE.TX)
-
-    def on_cad_done(self):
-        print("\non_CadDone")
-        print(self.get_irq_flags())
-
-    def on_rx_timeout(self):
-        print("\non_RxTimeout")
-        print(self.get_irq_flags())
-
-    def on_valid_header(self):
-        print("\non_ValidHeader")
-        print(self.get_irq_flags())
-
-    def on_payload_crc_error(self):
-        print("\non_PayloadCrcError")
-        print(self.get_irq_flags())
-
-    def on_fhss_change_channel(self):
-        print("\non_FhssChangeChannel")
-        print(self.get_irq_flags())
 
     def start(self):
         global args
         sys.stdout.write("\rstart")
-        self.tx_counter = 0
-        BOARD.led_on()
-        self.write_payload([0x0f])
+        # self.tx_counter = 0
+        # self.write_payload([0x0f])
         self.set_mode(MODE.TX)
+        sleep(10)
+        BOARD.del_events()
+        self.set_dio_mapping([0] * 6)
+        # BOARD.add_events(self._dio0, self._dio1, self._dio2, self._dio3, self._dio4, self._dio5)
+
         while True:
             sleep(1)
 
 lora = LoRaBeacon(verbose=False)
 args = parser.parse_args(lora)
+print(args)
 lora.set_freq(433.5)
 lora.set_pa_config(pa_select=1)
 #lora.set_rx_crc(True)

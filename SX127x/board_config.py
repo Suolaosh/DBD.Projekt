@@ -104,6 +104,10 @@ class BOARD:
             GPIO.add_event_detect(BOARD.SWITCH, GPIO.RISING, callback=switch_cb, bouncetime=300)
 
     @staticmethod
+    def del_events():
+        GPIO.remove_event_detect(BOARD.DIO0)
+
+    @staticmethod
     def led_on(value=1):
         """ Switch the proto shields LED
         :param value: 0/1 for off/on. Default is 1.
