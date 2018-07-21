@@ -1,7 +1,0 @@
-name: smartdp
-version: 1
-
-handle:
-- directoryindex: index.html error.html
-- errordoc: 404 /error/error.html
-- errordoc: 403 /error/403.html
