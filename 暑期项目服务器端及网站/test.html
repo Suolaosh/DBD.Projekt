@@ -1,0 +1,158 @@
+.nui-scroll {
+	margin-left: 100px;
+	border: 2px solid #CD00CD;
+	width: 500px;
+	height: 400px;
+	background-color: #000000;
+	color: #16C60C;
+	overflow: auto;
+}
+
+.nui-scroll::-webkit-scrollbar {
+	width: 8px;
+	height: 8px;
+}
+
+
+/*正常情况下滑块的样式*/
+
+.nui-scroll::-webkit-scrollbar-thumb {
+	background-color: rgba(0, 0, 0, .05);
+	border-radius: 10px;
+	-webkit-box-shadow: inset 1px 1px 0 rgba(0, 0, 0, .1);
+}
+
+
+/*鼠标悬浮在该类指向的控件上时滑块的样式*/
+
+.nui-scroll:hover::-webkit-scrollbar-thumb {
+	background-color: rgba(0, 0, 0, .2);
+	border-radius: 10px;
+	-webkit-box-shadow: inset 1px 1px 0 rgba(0, 0, 0, .1);
+}
+
+
+/*鼠标悬浮在滑块上时滑块的样式*/
+
+.nui-scroll::-webkit-scrollbar-thumb:hover {
+	background-color: rgba(0, 0, 0, .4);
+	-webkit-box-shadow: inset 1px 1px 0 rgba(0, 0, 0, .1);
+}
+
+
+/*正常时候的主干部分*/
+
+.nui-scroll::-webkit-scrollbar-track {
+	border-radius: 10px;
+	-webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0);
+	background-color: white;
+}
+
+
+/*鼠标悬浮在滚动条上的主干部分*/
+
+.nui-scroll::-webkit-scrollbar-track:hover {
+	-webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, .4);
+	background-color: rgba(0, 0, 0, .01);
+}
+
+
+
+
+
+<div id="terminal" class="nui-scroll">
+
+						<!--这里有好多上面这结构为了节省篇幅就省去了-->
+					</div>
+					<script>
+						var txt = ['-------欢迎来到-------', '------智能大棚终端------', 'aaa', '这是第 4 行', '这是第 5 行'];
+						var cnt = 0;
+						function updatetxt() {
+							nextline();
+							setTimeout(updatetxt, 1000);
+
+							function nextline() {
+								var lines = document.getElementById('terminal').innerHTML + txt[cnt++] + "";
+								if(cnt > 4) cnt = 0;
+								document.getElementById('terminal').innerHTML = lines;
+							}
+						}
+						updatetxt();
+					</script>
+					
+
+
+
+
+		<div class="main-grid">
+			<div class="agile-bottom-grids">
+				<div class="col-md-6 agile-last-left">
+					<table align="center" width="500" height="400" border=3 bordercolor="#00ff99">
+						<tbody>
+							<tr>
+								<td colspan="4" align="center" height="50">大棚表</td>
+							</tr>
+							<tr>
+								<td width="25%" height="25" align="center">大棚ID</td>
+								<td width="25%" height="25" align="center">种植作物</td>
+								<td width="25%" height="25" align="center">经纬度</td>
+								<td width="25%" height="25" align="center">种植面积</td>
+							</tr>
+							<tr height="20%">
+								<td width="25%"align="center">0001</td>
+								<td width="25%"align="center">花椰菜</td>
+								<td width="25%"align="center">119.1,36.62</td>
+								<td width="25%"align="center">400</td>
+							</tr>
+							<tr height="20%">
+								<td width="25%"align="center">0002</td>
+								<td width="25%"align="center">火龙果</td>
+								<td width="25%"align="center">118.3,36.31</td>
+								<td width="25%"align="center">400</td>
+							</tr>
+							<tr height="20%">
+								<td width="25%"align="center">0003</td>
+								<td width="25%"align="center">草莓</td>
+								<td width="25%"align="center">118.3,36.31</td>
+								<td width="25%"align="center">300</td>
+							</tr>
+							<tr height="20%">
+								<td width="25%"align="center"></td>
+								<td width="25%"align="center"></td>
+								<td width="25%"align="center"></td>
+								<td width="25%"align="center"></td>
+							</tr>
+						</tbody>
+					</table>
+				</div>
+				<div class="col-md-6 agile-last-right">
+					<table align="center" width="500" height="400" border=3 bordercolor="#00ff99">
+						<tbody>
+							<tr>
+								<td colspan="2" align="center" height="50">设备表</td>
+							</tr>
+							<tr>
+								<td width="50%" height="25" align="center">设备ID</td>
+								<td width="50%" height="25" align="center">所在大棚</td>
+							</tr>
+							<tr height="20%">
+								<td width="50%"align="center">0001</td>
+								<td width="50%"align="center">0001</td>
+							</tr>
+							<tr height="20%"> 
+								<td width="50%"align="center">0002</td>
+								<td width="50%"align="center">0001</td>
+							</tr>
+							<tr height="20%">
+								<td width="50%"align="center"></td>
+								<td width="50%"align="center"></td>
+							</tr>
+							<tr height="20%">
+								<td width="50%"align="center"></td>
+								<td width="50%"align="center"></td>
+							</tr>
+						</tbody>
+					</table>
+				</div>
+			</div>
+		</div>
