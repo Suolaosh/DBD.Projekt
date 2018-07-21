@@ -68,7 +68,7 @@ class LoRaRcvCont(LoRa):
     def start(self):
         self.reset_ptr_rx()
         self.set_mode(MODE.RXCONT)
-        global args
+        # global args
         while True:
             sleep(1)
             self.set_mode(MODE.STDBY)
@@ -76,9 +76,9 @@ class LoRaRcvCont(LoRa):
             sys.stdout.flush()
             self.tx_counter += 1
             sys.stdout.write("\rtx #%d" % self.tx_counter)
-            if args.single:
-                print
-                sys.exit(0)
+            # if args.single:
+            #     print
+            #     sys.exit(0)
             # BOARD.led_off()
             sleep(1)
 
@@ -86,7 +86,7 @@ class LoRaRcvCont(LoRa):
             self.write_payload([0x30, 0x31, 0x32, 0x33])
             # BOARD.led_on()
             self.set_mode(MODE.TX)
-            sleep(1)
+            sleep(2)
             self.set_mode(MODE.RXCONT)
         #     rssi_value = self.get_rssi_value()
         #     status = self.get_modem_status()

@@ -4,6 +4,7 @@ from time import sleep
 from SX127x.LoRa import *
 from SX127x.LoRaArgumentParser import LoRaArgumentParser
 from SX127x.board_config import BOARD
+import httpfuncs
 
 BOARD.setup()
 
@@ -14,8 +15,9 @@ sending = 0
 class FinalApp(LoRa):
     tx_counter = 0
     sbcommend = 0
-    bjcommend = 1
-
+    bjcommend = 0
+    lastcommend = []
+    commend = []
     def __init__(self, verbose=False):
         super(FinalApp, self).__init__(verbose)
         self.set_mode(MODE.SLEEP)
@@ -27,17 +29,34 @@ class FinalApp(LoRa):
         payload = self.read_payload(nocheck=True)
         print("bytesmessage:")
         print(bytes(payload).decode("utf-8", 'ignore'))
-        print(payload)
-        mes=[]
-        for i in payload[4:13]:
-            mes.append(chr(i))
-        print mes
-        temp = mes[0] + mes[1]
-        hum = mes[3] + mes[4]
-        intens = mes[6] + mes[7] + mes[8]
-        print temp
-        print hum
-        print intens
+        # header=[]
+        # for b in payload[0:4]:
+        #     header.append(int(b,16))
+        # print header
+        if payload[0] == 187 and payload[1] == 254:
+            if payload[4] == 0x30:     # data
+                print(payload)
+                mes = []
+                for i in payload[5:]:
+                    mes.append(chr(i))
+                print mes
+                temp = mes[0] + mes[1]
+                hum = mes[2] + mes[3]
+                intens = mes[4] + mes[5] + mes[6]
+                # print httpfuncs.sendtemp(hum,temp,intens)
+                print temp
+                print hum
+                print intens
+            elif payload[4] == 0x31:
+                # httpfuncs.sendstate(self.commend[0],self.commend[1])
+                cmd=[]
+                for i in payload[5:]:
+                    cmd.append(chr(i))
+                print cmd
+                print "fuck"
+                # self.commend = []
+        else:
+            print "\nmessage not for me"
 
 
 
@@ -51,57 +70,6 @@ class FinalApp(LoRa):
     def on_tx_done(self):
         print("\nTxDone")
         print "irq"+self.get_irq_flags()
-        # global args
-        # print "fuck"
-        # commend = [self.sbcommend, self.bjcommend]
-        # self.send_message(commend)
-        # print(commend)
-        # commend = [self.sbcommend, self.bjcommend]
-        # if (self.tx_counter % 5 == 0):
-        #     self.send_message(commend)
-        # self.send_
-        #
-        # self.set_mode(MODE.STDBY)
-        # self.clear_irq_flags(TxDone=1)
-        # sys.stdout.flush()
-        # if (1):
-        #     self.tx_counter += 1
-        #     sys.stdout.write("\rtx #%d" % self.tx_counter)
-        #
-        # if args.single:
-        #     print
-        #     sys.exit(0)
-        # # BOARD.led_off()
-        # sleep(args.wait)
-        #
-        # self.write_payload([0xfe, 0xbb, self.tx_counter, 0x39, self.sbcommend, self.bjcommend])
-        # BOARD.led_on()
-        # self.set_mode(MODE.TX)
-        # if self.get_irq_flags().tx_done:
-        #     self.set_mode(MODE.RXCONT)
-
-    # def send_message(self,massage):
-    #     global args
-    #     global sending
-    #     sending = 1
-    #     self.set_mode(MODE.SLEEP)
-    #     self.clear_irq_flags(TxDone=1)
-    #     sys.stdout.flush()
-    #     self.tx_counter += 1
-    #     sys.stdout.write("\rtx #%d" % self.tx_counter)
-    #     if args.single:
-    #         print
-    #         sys.exit(0)
-    #     sleep(args.wait)
-    #     # header = [0xfe, 0xbb]
-    #     # self.write_payload(header+massage)
-    #     # self.set_mode(MODE.TX)
-    #     # if self.get_irq_flags().tx_done:
-    #     #     self.set_mode(MODE.RXCONT)
-    #     #     sending = 0
-    #
-    #     self.write_payload([0xfe, 0xbb, self.tx_counter, 0x39, self.sbcommend, self.bjcommend])
-    #     self.set_mode(MODE.TX)
 
     def start(self):
         self.reset_ptr_rx()
@@ -111,27 +79,50 @@ class FinalApp(LoRa):
             sleep(5)
             # self.set_dio_mapping([0] * 6)
             # if(commend<>lastcommend)
+            self.commend = httpfuncs.getcommend()
+            self.lastcommend = self.commend
+            self.sbcommend = self.commend[0]
+            self.bjcommend = self.commend[1]
+            # print "type of commend:"
+            # print type(self.commend)
+            # print "commend:"
+            # print self.commend
+            # self.set_mode(MODE.STDBY)
+            # self.clear_irq_flags(TxDone=1)
+            # sys.stdout.flush()
+            # self.tx_counter += 1
+            # sys.stdout.write("\rtx #%d\n" % self.tx_counter)
 
+            payload = [0xfe, 0xbb, self.tx_counter, 9,0x31]
             self.set_mode(MODE.STDBY)
             self.clear_irq_flags(TxDone=1)
             sys.stdout.flush()
             self.tx_counter += 1
-            sys.stdout.write("\rtx #%d" % self.tx_counter)
-            # if args.single:
-            #     print
-            #     sys.exit(0)
-            self.write_payload([0xfe, 0xbb, self.tx_counter, 0x39,0x31, int(hex(self.sbcommend),0), int(hex(self.bjcommend),0)])
+            sys.stdout.write("\rtx #%d\n" % self.tx_counter)
+            payload.extend(self.commend)
+            self.write_payload(payload)
+            print "txcommend:"
+            print payload
             self.set_mode(MODE.TX)
-            # BOARD.led_off()
-            # sleep(1)
-            # commend = [self.sbcommend, self.bjcommend]
-            # self.send_message(commend)
-            # print(commend)
+            self.set_mode(MODE.SLEEP)
+            self.reset_ptr_rx()
+            self.set_mode(MODE.RXCONT)
+            # if self.lastcommend != self.commend:
+            #     self.set_mode(MODE.STDBY)
+            #     self.clear_irq_flags(TxDone=1)
+            #     sys.stdout.flush()
+            #     self.tx_counter += 1
+            #     sys.stdout.write("\rtx #%d\n" % self.tx_counter)
+            #     payload.extend(self.commend)
+            #     self.write_payload(payload)
+            #     print "txcommend:"
+            #     print payload
+            #     self.set_mode(MODE.TX)
 
-            rssi_value = self.get_rssi_value()
-            status = self.get_modem_status()
-            sys.stdout.flush()
-            sys.stdout.write("\r%d %d %d" % (rssi_value, status['rx_ongoing'], status['modem_clear']))
+            # rssi_value = self.get_rssi_value()
+            # status = self.get_modem_status()
+            # sys.stdout.flush()
+            # sys.stdout.write("\r%d %d %d" % (rssi_value, status['rx_ongoing'], status['modem_clear']))
 
 
 lora = FinalApp(verbose=False)
@@ -154,7 +145,7 @@ except KeyboardInterrupt:
     print("")
     sys.stderr.write("KeyboardInterrupt\n")
 finally:
-    sys.stdout.flush()
+    # sys.stdout.flush()
     print("")
     lora.set_mode(MODE.SLEEP)
     print("lora")
