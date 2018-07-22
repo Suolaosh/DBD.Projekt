@@ -56,21 +56,21 @@ class LoRaBeacon(LoRa):
         self.set_mode(MODE.RXCONT)
 
     def on_tx_done(self):
+        sleep(5)
         global args
         self.set_mode(MODE.STDBY)
         self.clear_irq_flags(TxDone=1)
         sys.stdout.flush()
-        # if(查询值发生变化 或者 )
         self.tx_counter += 1
         sys.stdout.write("\rtx #%d" % self.tx_counter)
 
-        if args.single:
-            print
-            sys.exit(0)
+
         # BOARD.led_off()
         sleep(args.wait)
-
-        self.write_payload([0xfe,0xbb,self.tx_counter,0x39,self.sbcommend,self.bjcommend])
+        if self.tx_counter==1:
+            self.write_payload([0xfe,0xbb,self.tx_counter,9,0x32,0x30,0x30])
+        elif self.tx_counter==2:
+            self.write_payload([0xfe, 0xbb, self.tx_counter,9, 0x32, 0x31, 0x30])
         # BOARD.led_on()
         self.set_mode(MODE.TX)
 
@@ -81,8 +81,7 @@ class LoRaBeacon(LoRa):
         # self.write_payload([0x0f])
         self.set_mode(MODE.TX)
         sleep(10)
-        BOARD.del_events()
-        self.set_dio_mapping([0] * 6)
+
         # BOARD.add_events(self._dio0, self._dio1, self._dio2, self._dio3, self._dio4, self._dio5)
 
         while True:
@@ -91,7 +90,7 @@ class LoRaBeacon(LoRa):
 lora = LoRaBeacon(verbose=False)
 args = parser.parse_args(lora)
 print(args)
-lora.set_freq(433.5)
+# lora.set_freq(433.5)
 lora.set_pa_config(pa_select=1)
 #lora.set_rx_crc(True)
 #lora.set_agc_auto_on(True)
