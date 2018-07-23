@@ -6,7 +6,7 @@ getcontrol_url = 'http://smartdp.applinzi.com/php/getcontrol.php'   # 轮询命�
 
 postwind_url = 'http://smartdp.applinzi.com/php/postwind.php'
 posttemp_url = 'http://smartdp.applinzi.com/php/posttemphumintens.php'
-postcurtain_url = 'http://smartdp.applinzi.com/php/postcurtain.php'
+postcurtain_url = 'http://smartdp.applinzi.com/php/postwind.php'
 postpump_url = 'http://smartdp.applinzi.com/php/postpump.php'
 postdebug_url = 'http://smartdo.applinzi.com/php/postdebug.php'
 
@@ -31,7 +31,9 @@ def getcommend():
 
     # commend = [hex(int(c)) for c in r_getcontrol.text[0:2]]
     # commend = hex(ord(str(r_getcontrol.text[0:2]).encode("utf-8")))
-    commend = [int(hex(ord(unicode(c).encode('utf-8'))),16) for c in r_getcontrol.text[0:2]]
+    commend = [int(hex(ord(unicode(c).encode('utf-8'))),16) for c in r_getcontrol.text[0:3]]
+    print "commend"
+    print commend
     # print "type of commend[0])"
     # print type(commend[0])
     return commend
@@ -39,7 +41,7 @@ def getcommend():
 
 
 # 窗帘
-def sendstate(curtain_state, pump_state):
+def sendcurtainstate(curtain_state):
     postcurtain_data = {
         'time':'0',
         'state':curtain_state
@@ -47,7 +49,9 @@ def sendstate(curtain_state, pump_state):
     r_postcurtain = requests.post(postcurtain_url, data = postcurtain_data)
     # -------------------------------------------------------
 
-    # 水泵
+
+# 水泵
+def sendpumpstate(pump_state):
     postpump_data = {
         'time':'0',
         'state':pump_state

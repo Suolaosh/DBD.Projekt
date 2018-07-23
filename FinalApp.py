@@ -45,24 +45,33 @@ class FinalApp(LoRa):
                 temp = mes[0] + mes[1]
                 hum = mes[2] + mes[3]
                 intens = mes[4] + mes[5] + mes[6]
+                intens = -(1.0/6) * (float(intens)) + 166.6
                 print httpfuncs.sendtemp(hum,temp,intens)
+                print "tempture uploaded"
                 print temp
-                print "type of temp:"
-                print type(temp)
-                print "type of repr(temp):"
-                print type(repr(temp))
-                print repr(temp)
+                # print "type of temp:"
+                # print type(temp)
+                # print "type of repr(temp):"
+                # print type(repr(temp))
+                # print repr(temp)
                 print hum
                 print intens
             elif payload[4] == 0x31:
-
                 cmd=[]
+                curtainstate = '0'
+                pumpstate = '0'
                 for i in payload[5:]:
                     cmd.append(chr(i))
-                print cmd
-                print "fuck"
-                httpfuncs.sendstate(cmd[0], cmd[1])
-                self.commend = [cmd[0], cmd[1]]
+                print "pump and certain state upload"
+                if cmd[0] == '1':
+                    curtainstate = cmd[1]
+                    httpfuncs.sendcurtainstate(curtainstate)
+                elif cmd[0] == '0':
+                    pumpstate = cmd[1]
+                    httpfuncs.sendpumpstate(pumpstate)
+                self.commend = [curtainstate, pumpstate]
+                print "self.commend"
+                print self.commend
         else:
             print "\nmessage not for me"
 
@@ -85,39 +94,24 @@ class FinalApp(LoRa):
         print "start()"
         global args
         while True:
-            sleep(5)
+            sleep(2)
             # self.set_dio_mapping([0] * 6)
             # if(commend<>lastcommend)
-            self.commend = httpfuncs.getcommend()
             self.lastcommend = self.commend
-            # self.sbcommend = self.commend[0]
-            # self.bjcommend = self.commend[1]
-            # print "type of commend:"
-            # print type(self.commend)
-            # print "commend:"
-            # print self.commend
-            # self.set_mode(MODE.STDBY)
-            # self.clear_irq_flags(TxDone=1)
-            # sys.stdout.flush()
-            # self.tx_counter += 1
-            # sys.stdout.write("\rtx #%d\n" % self.tx_counter)
+            self.commend = httpfuncs.getcommend()
 
-            payload = [0xfe, 0xbb, self.tx_counter, 9,0x32]
-            # self.set_mode(MODE.STDBY)
-            # self.clear_irq_flags(TxDone=1)
-            # sys.stdout.flush()
-            # self.tx_counter += 1
-            # sys.stdout.write("\rtx #%d\n" % self.tx_counter)
-            # payload.extend(self.commend)
-            # self.write_payload(payload)
-            # print "txcommend:"
-            # print payload
-            # self.set_mode(MODE.TX)
-            # self.set_mode(MODE.SLEEP)
-            # self.reset_ptr_rx()
-            # self.set_mode(MODE.RXCONT)
 
-            if self.lastcommend != self.commend:
+
+            if self.lastcommend == self.commend:
+                print "lastcommend"
+                print self.lastcommend
+                print "commend:"
+                print self.commend
+                print "commend is repeating!"
+            else:
+                self.tx_counter += 1
+                sys.stdout.write("\rtx #%d\n" % self.tx_counter)
+                payload = [0xfe, 0xbb, self.tx_counter, 9]
                 self.set_mode(MODE.STDBY)
                 self.clear_irq_flags(TxDone=1)
                 sys.stdout.flush()
@@ -128,12 +122,24 @@ class FinalApp(LoRa):
                 print "txcommend:"
                 print payload
                 self.set_mode(MODE.TX)
+                print "commend sended"
+                sleep(1)
                 self.reset_ptr_rx()
                 self.set_mode(MODE.RXCONT)
-            # rssi_value = self.get_rssi_value()
-            # status = self.get_modem_status()
+
+            # print "commend sended"
+            # self.set_mode(MODE.STDBY)
+            # self.clear_irq_flags(TxDone=1)
             # sys.stdout.flush()
-            # sys.stdout.write("\r%d %d %d" % (rssi_value, status['rx_ongoing'], status['modem_clear']))
+            #
+            # payload.extend(self.commend)
+            # self.write_payload(payload)
+            # print "txcommend:"
+            # print payload
+            # self.set_mode(MODE.TX)
+            # sleep(1)
+            # self.reset_ptr_rx()
+            # self.set_mode(MODE.RXCONT)
 
 
 lora = FinalApp(verbose=False)
