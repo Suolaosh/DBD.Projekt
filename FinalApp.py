@@ -14,8 +14,8 @@ sending = 0
 
 class FinalApp(LoRa):
     tx_counter = 0
-    sbcommend = 0
-    bjcommend = 0
+    # sbcommend = 0
+    # bjcommend = 0
     lastcommend = []
     commend = []
 
@@ -46,7 +46,10 @@ class FinalApp(LoRa):
                 hum = mes[2] + mes[3]
                 intens = mes[4] + mes[5] + mes[6]
                 intens = -(1.0/6) * (float(intens)) + 166.6
-                print httpfuncs.sendtemp(hum,temp,intens)
+                if temp == '0':
+                    print "init data"
+                else :
+                    print httpfuncs.sendtemp(hum,temp,intens)
                 print "tempture uploaded"
                 print temp
                 # print "type of temp:"
@@ -103,28 +106,29 @@ class FinalApp(LoRa):
 
 
             if self.lastcommend == self.commend:
-                print "lastcommend"
-                print self.lastcommend
-                print "commend:"
-                print self.commend
+                # print "lastcommend"
+                # print self.lastcommend
+                # print "commend:"
+                # print self.commend
                 print "commend is repeating!"
             else:
                 self.tx_counter += 1
                 sys.stdout.write("\rtx #%d\n" % self.tx_counter)
                 payload = [0xfe, 0xbb, self.tx_counter, 9]
-                self.set_mode(MODE.STDBY)
-                self.clear_irq_flags(TxDone=1)
-                sys.stdout.flush()
-                self.tx_counter += 1
-                sys.stdout.write("\rtx #%d\n" % self.tx_counter)
-                payload.extend(self.commend)
-                self.write_payload(payload)
-                print "txcommend:"
-                print payload
-                self.set_mode(MODE.TX)
-                print "commend sended"
-                sleep(1)
-                self.reset_ptr_rx()
+                for i in range(3):
+                    self.set_mode(MODE.STDBY)
+                    self.clear_irq_flags(TxDone=1)
+                    sys.stdout.flush()
+                    self.tx_counter += 1
+                    sys.stdout.write("\rtx #%d\n" % self.tx_counter)
+                    payload.extend(self.commend)
+                    self.write_payload(payload)
+                    print "txcommend:"
+                    print payload
+                    self.set_mode(MODE.TX)
+                    print "commend sended"
+                    sleep(1)
+                    self.reset_ptr_rx()
                 self.set_mode(MODE.RXCONT)
 
             # print "commend sended"
@@ -152,8 +156,8 @@ lora.set_freq(433.5)
 print(lora)
 assert(lora.get_agc_auto_on() == 1)
 
-try: input("Press enter to start...")
-except: pass
+# try: input("Press enter to start...")
+# except: pass
 
 try:
     lora.start()
