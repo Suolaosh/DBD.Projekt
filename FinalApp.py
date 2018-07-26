@@ -46,7 +46,7 @@ class FinalApp(LoRa):
                 hum = mes[2] + mes[3]
                 intens = mes[4] + mes[5] + mes[6]
                 intens = -(1.0/6) * (float(intens)) + 166.6
-                if temp == '0':
+                if temp == '00' or hum =='00':
                     print "init data"
                 else :
                     print httpfuncs.sendtemp(hum,temp,intens)
@@ -114,8 +114,9 @@ class FinalApp(LoRa):
             else:
                 self.tx_counter += 1
                 sys.stdout.write("\rtx #%d\n" % self.tx_counter)
-                payload = [0xfe, 0xbb, self.tx_counter, 9]
-                for i in range(3):
+
+                for i in range(2):
+                    payload = [0xfe, 0xbb, self.tx_counter, 9]
                     self.set_mode(MODE.STDBY)
                     self.clear_irq_flags(TxDone=1)
                     sys.stdout.flush()
@@ -127,7 +128,7 @@ class FinalApp(LoRa):
                     print payload
                     self.set_mode(MODE.TX)
                     print "commend sended"
-                    sleep(1)
+                    sleep(.5)
                     self.reset_ptr_rx()
                 self.set_mode(MODE.RXCONT)
 
